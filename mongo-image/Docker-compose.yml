@@ -1,21 +1,34 @@
-	# Use root/example as user/password credentials
-version: '3.1'
-
+# 1. mongo-express in browser: basicAuth credentials are admin:pass 
+# 2. allows to connect from Studio3T using localhost:27018 and Basic authentication (SCRAM-SHA-256 authentication)
+# 3. If using mongosh, authenticate as root in admin db 
+# 4. Volume mapping to the local computer does not work and makes the deployment fail. For this reason I use docker volume
+version: '3'
 services:
-
   mongo:
     image: mongo
     restart: always
+    ports:
+      - '27018:27017'
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-
+      MONGO_INITDB_ROOT_PASSWORD: linsenundlentejas
+    volumes:
+#      - ./db_mapped_volume/db:/data/db
+#      - ./db_mapped_volume/configdb:/data/configdb
+      - mongodb_data:/data/db
+      - mongodb_data:/data/configdb
   mongo-express:
     image: mongo-express
     restart: always
     ports:
-      - 8081:8081
+      - 8082:8081
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+      ME_CONFIG_MONGODB_ADMINPASSWORD: linsenundlentejas
+      ME_CONFIG_MONGODB_SERVER: mongo
+      # ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+    depends_on:
+      - mongo
+volumes:
+  mongodb_data:
+
