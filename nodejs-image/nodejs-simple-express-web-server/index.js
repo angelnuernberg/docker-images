@@ -11,6 +11,7 @@ const port = 3000
 // According to node.js doc https://nodejs.org/api/process.html, SIGTERM is not 
 // supported on Windows
 // The express package is already in node_modules, so 'npm install' is not required
+// > SIGTERM signal is sent at docker console by performing "docker stop <container-id>"
 process.on('SIGINT', ()=> {
     console.log('Application is being interrupted...')
     process.exit(0)
