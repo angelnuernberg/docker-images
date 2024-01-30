@@ -1,0 +1,7 @@
+Commands for running simple python apps (without dockerfile):
+	- docker run -it -v  ${PWD}:/app  python:3.9  python3 /app/hello-world.py
+	- docker run -it -v .:/app  python:3.9  python3 /app/hello-world.py
+	- docker run -it -v .:/app  -w /app python:3.9  python3 hello-world.py
+	- docker run -it -v ${PWD}:/app -w /app python3.9 python calendar-app.py
+			
+	- docker run -it -v ${PWD}:/app -w /app python:3.9 python calendar-app.py
