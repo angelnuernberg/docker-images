@@ -1,0 +1,4 @@
+IMPORTANT:
+Bogdan explained how to compile without having node/npm installed at the local computer (optionB)
+-> The files node_modules, package.json, package-lock.json were created at the container and 
+    copied to the host local folder by volume mapping!! 
