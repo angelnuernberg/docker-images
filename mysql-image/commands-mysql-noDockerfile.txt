@@ -1,0 +1,12 @@
+THESE ARE THE COMMANDS TO DEPLOY MYSQL DB, PHPMYADMIN AND WORDPRESS IF NO DOCKERFILE IS USED 
+> A CUSTOM NETWORK IS REQUIRED 
+
+docker run --network mysql-network -e 
+
+docker run --network mysql-network -e MYSQL_ROOT_PASSWORD=linsenmitlentejas -p 3307:3306 -v ${PWD}/mysql_data:/var/lib/mysql  --name my-mysql-db-container -d mysql
+    -> ATTENTION: -v volume mapping causes problems in my local windows 
+    -> database files are stored at /var/lib/mysql
+
+docker run --network mysql-network -p 8080:80 -e PMA_HOST=my-mysql-db-container -d phpmyadmin/phpmyadmin
+
+docker run -d -p 8081:80 --network mysql-network --name my-wordpress wordpress 
