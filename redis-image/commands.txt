@@ -1,0 +1,34 @@
+REDIS 
+
+CREATE NEW CUSTOM NETWORK
+docker network create redis
+
+LAUNCH REDIS CONTAINER
+docker run \
+    --name redis \
+    --network redis \
+    -d redis
+
+LAUNCH REDIS-COMMANDER CONTAINER
+docker run \
+    --name redis-commander \
+    --network redis \
+    -p 8081:8081 \
+    -e REDIS_HOST=redis \
+    -d rediscommander/redis-commander
+
+REDIS-COMMAND CAN BE OPENED AT BROWSER AT LOCALHOST:8081
+
+AT THE REDIS CONTAINER YOU CAN RUN REDIS-CLI TO INSERT AND RETRIEVE KEYS:
+docker exec -it <containerid> redis-cli 
+- R: 127.0.0.1:6379> 
+$ dock exec -it redis redis-cli
+127.0.0.1:6379> SET key1 "Hi there"
+OK
+127.0.0.1:6379> SET city1 "Madrid"
+OK
+127.0.0.1:6379> get key1
+"Hi there"
+127.0.0.1:6379> get city1
+"Madrid"
+
