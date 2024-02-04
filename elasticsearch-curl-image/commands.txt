@@ -1,0 +1,59 @@
+// ELASTICSEARCH AND CURL 
+
+// If using gitbash-windows, create an alias for "winpty docker" with:
+alias dock="winpty docker" 
+
+// Create custom network: 
+docker network create elasticsearch 
+
+// Instantiate curl container from image appropiate/curl. Busybox, alpine images do not contain curl 
+docker run \
+    -it \
+    --network elasticsearch \
+    --name curl \
+    appropriate/curl sh
+
+// A curl container can be instantiated for curling an URL, as the entrypoint.sh contains 
+// per default curl command
+docker run -it --name curl appropiate/curl http://google.com
+
+// Instantiate elasticsearch image: 
+docker run \
+    --network elasticsearch \
+    --name elasticsearch \
+    -e "discovery.type=single-node" \
+    -p 9200:9200 \
+    elasticsearch:7.6.2
+
+// Create index on elasticsearch
+curl -XPUT http://elasticsearch:9200/my-index
+
+// get indices 
+curl -XGET http://elasticsearch:9200/_cat/indices?v
+
+// Insert documents into the index: 
+curl -XPOST http://elasticsearch:9200/my-index/cities/1 \
+    -H 'Content-Type: application/json' \
+    -d '{"city":"New York"}'
+
+curl -XPOST http://elasticsearch:9200/my-index/cities/2 \
+    -H 'Content-Type: application/json' \
+    -d '{"city":"Paris"}'
+
+curl -XPOST http://elasticsearch:9200/my-index/cities/3 \
+    -H 'Content-Type: application/json' \
+    -d '{"city":"London"}'
+
+// Read fields mapping for the index 
+READ FIELDS MAPPING FOR THE INDEX
+curl -XGET http://elasticsearch:9200/my-index/_mapping?pretty
+
+ 
+// GET DOCUMENT BY ID
+curl -XGET http://elasticsearch:9200/my-index/cities/1?pretty
+
+// SEARCH ALL DOCUMENTS
+curl -XGET http://elasticsearch:9200/my-index/_search?pretty
+
+// SEARCH USING QUERY PARAMETER
+curl -XGET http://elasticsearch:9200/my-index/_search?q=city:new
