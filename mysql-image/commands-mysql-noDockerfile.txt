@@ -1,12 +1,63 @@
 THESE ARE THE COMMANDS TO DEPLOY MYSQL DB, PHPMYADMIN AND WORDPRESS IF NO DOCKERFILE IS USED 
 > A CUSTOM NETWORK IS REQUIRED 
+docker network create mysql-network 
 
-docker run --network mysql-network -e 
 
-docker run --network mysql-network -e MYSQL_ROOT_PASSWORD=linsenmitlentejas -p 3307:3306 -v ${PWD}/mysql_data:/var/lib/mysql  --name my-mysql-db-container -d mysql
+CREATE MYSQL SERVER 
     -> ATTENTION: -v volume mapping causes problems in my local windows 
     -> database files are stored at /var/lib/mysql
+    -> I run the command without using -v 
+docker run \
+--network mysql-network \
+-e MYSQL_ROOT_PASSWORD=linsenmitlentejas \
+-e MYSQL_DATABASE=wordpress \
+-e MYSQL_USER=wordpress \
+-e MYSQL_PASSWORD=wordpress \
+-p 3307:3306 \
+-v ${PWD}/mysql_data:/var/lib/mysql \
+--name my-mysql-db-container \
+-d mysql:5.7
+   
+CREATE WORDPRESS 
+docker run -p 8080:80 \
+--network mysql-network \
+--name my-wordpress -d \
+wordpress:5.4
 
-docker run --network mysql-network -p 8080:80 -e PMA_HOST=my-mysql-db-container -d phpmyadmin/phpmyadmin
+CREATE PHPMYADMIN WITH PMA_HOST VARIABLE (over dns name of mysql-docker image )
+docker run --network mysql-network \
+-p 8081:80 \
+-e PMA_HOST=my-mysql-db-container \
+--name my-phpadmin -d \
+phpmyadmin/phpmyadmin
 
-docker run -d -p 8081:80 --network mysql-network --name my-wordpress wordpress 
+// Wordpress worked, and also creating a post > the new post was visible at phpmyadmin 
+// at wordpress db, table wp_posts 
+
+// ---------------------------------------------------------
+// PROBLEM: WITH THE PREVIOUS COMMANDS THERE IS NO PERSISTENCE OF DB, SO I TRY 
+// CREATING A DOCKER VOLUME AND ATTACHING IT TO THE MYSQL CONTAINER 
+
+CREATE VOLUME 
+docker volume create mysql-db-backup 
+
+ATTACH VOLUME TO MYSQL CONTAINER: 
+docker run \
+--network mysql-network \
+-e MYSQL_ROOT_PASSWORD=linsenmitlentejas \
+-e MYSQL_DATABASE=wordpress \
+-e MYSQL_USER=wordpress \
+-e MYSQL_PASSWORD=wordpress \
+-p 3307:3306 \
+-v mysql-db-backup:/var/lib/mysql \
+--name my-mysql-db-container \
+-d mysql:5.7
+
+>> PERSIST WORKS!! 
+>> If I create posts in wordpress and create a new db in php-admin, they are 
+>> fetched back after creating new containers. The Wordpress installation detects 
+>> that the database already exists so that you just have to log in as root:
+>>  Message of Wordpress: "Already installed. You appear to have already installed 
+    Wordpress. To reinstall please clear your old database first" 
+>> Also connection to db through localhost:3307 works fine! 
+ 

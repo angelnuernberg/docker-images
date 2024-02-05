@@ -1,58 +1,53 @@
 version: '3'
 services:
-  my-mysql-db-container:
-    restart: unless-stopped
-    image: mysql
-    container_name: my-mysql-db-container
-    # expose:
-    #  - '3307'
+  mysql:
+    restart: always
+    image: mysql:5.7
+    container_name: mysql
     ports:
       - '3307:3306' # added in case an external app or tool running outside of Docker needs to connect. It is 
                     # not necessary for the connection to my-phpadmin and my-wordpreess
     volumes:
-      - mysql-volume:/var/lib/mysql
-    command: --default-authentication-plugin=mysql_native_password
+      - mysql-db-backup:/var/lib/mysql
+    # command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: linsenmitlentejas
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress 
+      MYSQL_PASSWORD: wordpress
     networks:
-      - my-mysql-phpadmin-wordpress-network
-  my-phpadmin:
-    restart: unless-stopped
+      - mysql-network
+
+  phpadmin:
+    restart: always
     image: phpmyadmin/phpmyadmin
     container_name: my-phpadmin
     environment:
-      PMA_HOST: my-mysql-db-container
-    # expose:
-    #  - '8080'
-    ports:
-      - '8080:80'
-    depends_on:
-      - my-mysql-db-container
-    networks:
-      - my-mysql-phpadmin-wordpress-network
-  my-wordpress:    # Configuration from https://www.digitalocean.com/community/tutorials/how-to-install-wordpress-with-docker-compose
-    # ATTENTION: THIS DOES NOT WORK AS WELL AS EXPECTED... BY RECREATING THE CONTAINER THERE ARE PROBLEMS TO CONNECT TO THE DATABASE,
-    # AND WHEN RESTARTED, IT SEEMS IT DOES NOT LEARN FROM THE VOLUME THAT A PREVIOUS INSTALLATION ALREADY TOOK PLACE... 
-    image: wordpress
-    restart: unless-stopped
-    container_name: my-wordpress
-    # environment:
-    #  WORDPRESS_DB_HOST: my-mysql-db-container:3306
-    #  WORDPRESS_DB_USER: root 
-    #  WORDPRESS_DB_PASSWORD: linsenmitlentejas
-    #  WORDPRESS_DB_NAME: wordpress 
-    # expose:
-    #  - '8081'
+      PMA_HOST: mysql
     ports:
       - '8081:80'
     depends_on:
-      - my-mysql-db-container
+      - mysql
     networks:
-      - my-mysql-phpadmin-wordpress-network
+      - mysql-network
+
+
+  wordpress:    # Configuration from https://www.digitalocean.com/community/tutorials/how-to-install-wordpress-with-docker-compose
+    # ATTENTION: THIS DOES NOT WORK AS WELL AS EXPECTED... BY RECREATING THE CONTAINER THERE ARE PROBLEMS TO CONNECT TO THE DATABASE,
+    # AND WHEN RESTARTED, IT SEEMS IT DOES NOT LEARN FROM THE VOLUME THAT A PREVIOUS INSTALLATION ALREADY TOOK PLACE... 
+    image: wordpress:5.4
+    restart: always
+    container_name: wordpress
+    ports:
+      - '8080:80'
+    depends_on:
+      - mysql
+    networks:
+      - mysql-network
   
 volumes:
-  mysql-volume:
+  mysql-db-backup:
 
 networks:
-  my-mysql-phpadmin-wordpress-network:
+  mysql-network:
     driver: bridge
