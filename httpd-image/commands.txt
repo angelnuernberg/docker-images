@@ -1,0 +1,18 @@
+HTTPD 
+
+docker run -p 8083:80 --name httpd httpd 
+
+How to change welcome page:
+https://stackoverflow.com/questions/46275973/how-to-access-apache2-container-working-directory-in-order-to-change-the-content
+
+I try to change index.html: 
+>> docker exec -it httpd bash
+
+>> root: find / -name index.html
+R: last line: /usr/local/apache2/htdocs/index.html
+
+>> nano /usr/local/apache2/htdocs/index.html 
+R: edit changes, save and reload at browser: 
+
+>> docker cp  ./result.txt <contaierId>:/home 
+R: copies file result.txt at current working local directory to /home of the containerId !! 
