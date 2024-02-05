@@ -32,9 +32,7 @@ services:
       - mysql-network
 
 
-  wordpress:    # Configuration from https://www.digitalocean.com/community/tutorials/how-to-install-wordpress-with-docker-compose
-    # ATTENTION: THIS DOES NOT WORK AS WELL AS EXPECTED... BY RECREATING THE CONTAINER THERE ARE PROBLEMS TO CONNECT TO THE DATABASE,
-    # AND WHEN RESTARTED, IT SEEMS IT DOES NOT LEARN FROM THE VOLUME THAT A PREVIOUS INSTALLATION ALREADY TOOK PLACE... 
+  wordpress:    
     image: wordpress:5.4
     restart: always
     container_name: wordpress
